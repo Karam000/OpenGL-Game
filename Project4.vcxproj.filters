@@ -21,6 +21,9 @@
     <Image Include="UV_Grid.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\OpenGL-Game\grass.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="FS.glsl">

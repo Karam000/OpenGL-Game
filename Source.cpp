@@ -45,7 +45,7 @@ vertex plan[] =
 };
 
 const GLint WIDTH = 600, HEIGHT = 600;
-GLuint VAO, CVBO, TVBO, SVBO,PVBO, programId, IBO, TextureId;
+GLuint VAO, CVBO, TVBO, SVBO, PVBO, programId, IBO, TextureId, TexturePlan;
 GLuint modelMatLoc, viewMatLoc, projMatLoc;
 GLuint InitShader(const char* vertex_shader_file_name, const char* fragment_shader_file_name);
 
@@ -264,7 +264,6 @@ void BindPlan()
 	//This in CPU so we need to link it to GPU using VAO & VBO
 }
 
-
 void CreateTriangle()
 {
 	//interleaved buffer
@@ -347,12 +346,14 @@ int Init()
 	glm::mat4 projMat = glm::perspectiveFov(60.0f, 5.0f, 5.0f, 1.0f, 10.0f);
 	glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(projMat));*/
 
+
 	sf::Image img;
 	if (!img.loadFromFile("UV_Grid.jpg"))
 		cout << "Error Loading Image";
 	else
 	{
 		glGenTextures(1, &TextureId);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, TextureId);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.getSize().x, img.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
 
@@ -360,6 +361,22 @@ int Init()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);		
+	}
+
+	Image planeImg;
+	if (!planeImg.loadFromFile("grass.jpg"))
+		cout << "Error Loading Image";
+	else
+	{
+		glGenTextures(1, &TexturePlan);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, TexturePlan);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, planeImg.getSize().x, planeImg.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, planeImg.getPixelsPtr());
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
 	glClearColor(0, 0, 0, 1);
@@ -396,11 +413,16 @@ void Render()
 	glm::mat4 projMat = glm::perspectiveFov(60.0f, 5.0f, 5.0f, 1.0f, 10.0f);
 	glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(projMat));
 
+	GLint textureLocation = glGetUniformLocation(programId, "tex");
+
 	BindPlan();
 	mat4 ModelMat3 = glm::translate(glm::vec3(0, 0, 0)) *
-		glm::rotate(0 * 180 / 3.14f, glm::vec3(1, 1, 1)) *
-		glm::scale(glm::vec3(1, 1, 1));
+		             glm::rotate(0 * 180 / 3.14f, glm::vec3(1, 1, 1)) *
+		             glm::scale(glm::vec3(1, 1, 1));
 	glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(ModelMat3));
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, TexturePlan);
+	glUniform1i(textureLocation, 0); 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	BindCube();
@@ -408,12 +430,15 @@ void Render()
 					glm::rotate(theta * 180 / 3.14f, glm::vec3(1, 1, 1)) *
 					glm::scale(glm::vec3(0.5, 0.5, 0.5));
 	glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(ModelMat));
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, TextureId);
+	glUniform1i(textureLocation, 0);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
 
 	BindCube();
 	mat4 ModelMat2 = glm::translate(glm::vec3(1.f, 0, -0.8f)) *
-		glm::rotate(theta * 180 / 3.14f, glm::vec3(1, 1, 1)) *
-		glm::scale(glm::vec3(0.5, 0.5, 0.5));
+					 glm::rotate(theta * 180 / 3.14f, glm::vec3(1, 1, 1)) *
+					 glm::scale(glm::vec3(0.5, 0.5, 0.5));
 	glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(ModelMat2));
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
 

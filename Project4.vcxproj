@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Image Include="..\OpenGL-Game\grass.jpg" />
     <Image Include="1.png" />
     <Image Include="UV_Grid.jpg" />
   </ItemGroup>
